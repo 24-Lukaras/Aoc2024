@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Aoc2024;
 
@@ -161,6 +163,64 @@ public static class Solutions
             if (safe)
                 result++;
 
+        }
+
+        return result;
+    }
+
+    public static int Solution_3_0(string input)
+    {
+        int result = 0;
+        Regex regex = new Regex(@"mul\((\d+),(\d+)\)");
+
+        var matches = regex.Matches(input);
+        foreach (Match match in matches)
+        {
+            int x = int.Parse(match.Groups[1].Value);
+            int y = int.Parse(match.Groups[2].Value);
+
+            result += x * y;
+        }
+
+        return result;
+    }
+    public static int Solution_3_1(string input)
+    {
+        int result = 0;
+
+        Regex regex = new Regex(@"mul\((\d+),(\d+)\)");
+        Regex instructionRegex = new Regex(@"do\(\)|don't\(\)");
+
+        var instructionMatches = instructionRegex.Matches(input).OrderBy(x => x.Index).ToList();
+        var matches = regex.Matches(input);
+
+        int nextIndex = instructionMatches[0].Index;
+        int instructionIndex = 0;
+        bool enabled = true;
+
+        foreach (Match match in matches)
+        {
+            if (match.Index > nextIndex)
+            {
+                enabled = instructionMatches[instructionIndex].Value != "don't()";
+                instructionIndex++;
+                if (instructionIndex < instructionMatches.Count)
+                {
+                    nextIndex = instructionMatches[instructionIndex].Index;
+                }
+                else
+                {
+                    nextIndex = int.MaxValue;
+                }
+            }
+
+            if (enabled)
+            {
+                int x = int.Parse(match.Groups[1].Value);
+                int y = int.Parse(match.Groups[2].Value);
+
+                result += x * y;
+            }
         }
 
         return result;
