@@ -225,4 +225,107 @@ public static class Solutions
 
         return result;
     }
+
+    public static int Solution_4_0(List<string> input)
+    {
+        HashSet<(int x0, int y0, int x1, int y1)> entries = new HashSet<(int x0, int y0, int x1, int y1)>();
+
+        Func<(int x, int y), (int x, int y), string, List<string>, bool> findWithVector = (start, vector, phrase, input) =>
+        {
+            (int x, int y) position = start;
+            for (int i = 0; i < phrase.Length; i++)
+            {
+                if (input[position.y][position.x] != phrase[i])
+                    return false;
+
+                if (i < phrase.Length - 1)
+                {
+                    position = (position.x + vector.x, position.y + vector.y);
+
+                    if (position.x < 0 || position.x >= input[0].Length || position.y < 0 || position.y >= input.Count)
+                        return false;
+                }
+
+            }
+
+            if (!entries.Contains((position.x, position.y, start.x, start.y)))
+            {
+                entries.Add((start.x, start.y, position.x, position.y));
+            }
+            return true;
+        };
+
+        (int x, int y)[] vectors = 
+        [
+            (0, -1),
+            (1, -1),
+            (1, 0),
+            (1, 1),
+            (0, 1),
+            (-1, 1),
+            (-1, 0),
+            (-1, -1)
+        ];
+
+        for (int y = 0; y < input.Count; y++)
+        {
+            for (int x = 0; x < input[y].Length; x++)
+            {
+                char c = input[y][x];
+                if (c == 'X')
+                {
+                    foreach (var vector in vectors)
+                    {
+                        findWithVector((x, y), vector, "XMAS", input);
+                    }
+                }
+                else if (c == 'S')
+                {
+                    foreach (var vector in vectors)
+                    {
+                        findWithVector((x, y), vector, "SAMX", input);
+                    }
+                }
+            }
+        }
+
+        return entries.Count;
+    }
+
+    public static int Solution_4_1(List<string> input)
+    {
+        int result = 0;
+        char[] chars = new char[4];
+        for (int y = 1; y < input.Count - 1; y++)
+        {
+            for (int x = 1; x < input[y].Length - 1; x++)
+            {
+                char c = input[y][x];
+                if (c == 'A')
+                {
+                    chars[0] = input[y - 1][x - 1];
+                    chars[1] = input[y + 1][x + 1];
+                    chars[2] = input[y + 1][x - 1];
+                    chars[3] = input[y - 1][x + 1];
+                    if (chars[0] == chars[1] || chars[2] == chars[3])
+                        continue;
+
+                    bool invalidCharacter = false;
+                    foreach (var @char in chars)
+                    {
+                        if (@char == 'X' || @char == 'A')
+                        {
+                            invalidCharacter = true;
+                            break;
+                        }
+                    }
+
+                    if (!invalidCharacter)
+                        result++;
+                }
+            }
+        }
+
+        return result;
+    }
 }
