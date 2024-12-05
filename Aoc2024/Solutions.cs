@@ -328,4 +328,127 @@ public static class Solutions
 
         return result;
     }
+
+    public static int Solution_5_0(IEnumerable<string> input)
+    {
+        int result = 0;
+
+        HashSet<(int, int)> rules = new HashSet<(int, int)>();
+        bool creatingRules = true;
+        foreach (var line in input)
+        {
+            if (line == string.Empty)
+            {
+                creatingRules = false;
+                continue;
+            }
+            if (creatingRules)
+            {
+                var arr = line.Split('|');
+                int @for = int.Parse(arr[0]);
+                int comparedValue = int.Parse(arr[1]);
+                rules.Add((@for, comparedValue));               
+            }
+            else
+            {
+                var coll = line.Split(',').Select(int.Parse).ToArray();
+                bool ruleBroken = false;
+                for (int i = 0; i < coll.Length; i++)
+                {
+                    int @for = coll[i];
+                    for (int j = i + 1; j < coll.Length; j++)
+                    {
+                        int comparedValue = coll[j];
+                        if (rules.TryGetValue((comparedValue, @for), out _))
+                        {
+                            ruleBroken = true;
+                            break;
+                        }
+                    }
+                    if (ruleBroken)
+                    {
+                        break;
+                    }
+                }
+                if (!ruleBroken)
+                {
+                    result += coll[coll.Length / 2];
+                }
+            }
+        }
+
+
+        return result;
+    }
+
+    public static int Solution_5_1(IEnumerable<string> input)
+    {
+        int result = 0;
+
+        List<int[]> incorrectLines = new List<int[]>();
+        HashSet<(int, int)> rules = new HashSet<(int, int)>();
+        bool creatingRules = true;
+        foreach (var line in input)
+        {
+            if (line == string.Empty)
+            {
+                creatingRules = false;
+                continue;
+            }
+            if (creatingRules)
+            {
+                var arr = line.Split('|');
+                int @for = int.Parse(arr[0]);
+                int comparedValue = int.Parse(arr[1]);
+                rules.Add((@for, comparedValue));
+            }
+            else
+            {
+                var coll = line.Split(',').Select(int.Parse).ToArray();
+                bool ruleBroken = false;
+                for (int i = 0; i < coll.Length; i++)
+                {
+                    int @for = coll[i];
+                    for (int j = i + 1; j < coll.Length; j++)
+                    {
+                        int comparedValue = coll[j];
+                        if (rules.TryGetValue((comparedValue, @for), out _))
+                        {
+                            ruleBroken = true;
+                            break;
+                        }
+                    }
+                    if (ruleBroken)
+                    {
+                        break;
+                    }
+                }
+                if (ruleBroken)
+                {
+                    incorrectLines.Add(coll);
+                }
+            }
+        }
+        foreach (var line in incorrectLines)
+        {
+            List<int> correctOrder = new List<int>();
+            for (int i = 0; i < line.Length; i++)
+            {
+                int number = line[i];
+                int j = 0;
+                for (; j < correctOrder.Count; j++)
+                {
+                    if (rules.TryGetValue((correctOrder[j], number), out _))
+                    {
+                        break;
+                    }
+                }
+                correctOrder.Insert(j, number);
+            }
+            result += correctOrder[correctOrder.Count / 2];
+        }
+
+
+        return result;
+    }
 }
