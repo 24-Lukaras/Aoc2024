@@ -255,7 +255,7 @@ public static class Solutions
             return true;
         };
 
-        (int x, int y)[] vectors = 
+        (int x, int y)[] vectors =
         [
             (0, -1),
             (1, -1),
@@ -347,7 +347,7 @@ public static class Solutions
                 var arr = line.Split('|');
                 int @for = int.Parse(arr[0]);
                 int comparedValue = int.Parse(arr[1]);
-                rules.Add((@for, comparedValue));               
+                rules.Add((@for, comparedValue));
             }
             else
             {
@@ -450,5 +450,176 @@ public static class Solutions
 
 
         return result;
+    }
+
+    public static int Solution_6_0(List<string> input)
+    {
+        var result = 0;
+
+        (int x, int y) position = (0, 0);
+        (int x, int y) vector = (0, -1);
+
+        for (int y = 0; y < input.Count; y++)
+        {
+            for (int x = 0; x < input[y].Length; x++)
+            {
+                if (input[y][x] == '^')
+                {
+                    position = (x, y);
+                    break;
+                }
+            }
+            if (position != (0, 0))
+                break;
+        }
+
+        bool outOfBounds = false;
+        while (!outOfBounds)
+        {
+            var charArr = input[position.y].ToCharArray();
+            charArr[position.x] = 'X';
+            input[position.y] = new string(charArr);
+
+            (int x, int y) targetPosition = (position.x + vector.x, position.y + vector.y);
+            if (targetPosition.x >= input[0].Length
+                || targetPosition.y >= input.Count
+                || targetPosition.x < 0
+                || targetPosition.y < 0)
+            {
+                outOfBounds = true;
+            }
+            else if (input[targetPosition.y][targetPosition.x] == '#')
+            {
+                vector = vector switch
+                {
+                    (0, -1) => (1, 0),
+                    (1, 0) => (0, 1),
+                    (0, 1) => (-1, 0),
+                    (-1, 0) => (0, -1),
+                    _ => (0, 0)
+                };
+            }
+            else
+            {
+                position = targetPosition;
+            }
+        }
+
+        for (int y = 0; y < input.Count; y++)
+        {
+            for (int x = 0; x < input[y].Length; x++)
+            {
+                if (input[y][x] == 'X')
+                {
+                    result++;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static int Solution_6_1(List<string> input)
+    {
+        (int x, int y) position = (0, 0);
+        (int x, int y) vector = (0, -1);
+
+        for (int y = 0; y < input.Count; y++)
+        {
+            for (int x = 0; x < input[y].Length; x++)
+            {
+                if (input[y][x] == '^')
+                {
+                    position = (x, y);
+                    break;
+                }
+            }
+            if (position != (0, 0))
+                break;
+        }
+        
+        HashSet<(int x, int y)> customBlocks = new HashSet<(int x, int y)>();
+        for (int y = 0; y < input.Count; y++)
+        {
+            for (int x = 0; x < input[y].Length; x++)
+            {
+                HashSet<(int x, int y, int vX, int vY)> entries = new HashSet<(int x, int y, int vX, int vY)>();
+                bool isLoop = false;
+                bool outOfBounds = false;
+                var tempPosition = (position.x, position.y);
+                var tempVector = (vector.x, vector.y);
+                while (!outOfBounds)
+                {
+                    outOfBounds = Traverse_6(input, ref tempPosition, ref tempVector, (x, y), entries, out isLoop);
+                }
+                if (isLoop)
+                {
+                    customBlocks.Add((x, y));
+                }
+            }
+        }        
+
+        /*
+        HashSet<(int x, int y)> customBlocks = new HashSet<(int x, int y)>();
+        int i = 0;
+        bool outOfBounds = false;
+        while (!outOfBounds)
+        {
+            (int x, int y) tempPosition = (position.x, position.y);
+            (int x, int y) tempVector = (vector.x, vector.y);
+            HashSet<(int x, int y, int vX, int vY)> entries = new HashSet<(int x, int y, int vX, int vY)>();
+            bool isComplete = false;
+            var customBlock = (tempPosition.x + tempVector.x, tempPosition.y + tempVector.y);
+            while (!isComplete)
+            {
+                isComplete = Traverse_6(input, ref tempPosition, ref tempVector, customBlock, entries, out var isLoop);
+                if (isLoop) customBlocks.Add(customBlock);
+            }
+
+            outOfBounds = Traverse_6(input, ref position, ref vector, (-1, -1), null, out _);
+        }
+        */
+
+        return customBlocks.Count;
+    }
+
+    private static bool Traverse_6(List<string> input, ref (int x, int y) position, ref (int x, int y) vector, (int x, int y) customBlock, HashSet<(int x, int y, int vX, int vY)>? entries, out bool isLoop)
+    {
+        isLoop = false;
+        (int x, int y) targetPosition = (position.x + vector.x, position.y + vector.y);
+        if (targetPosition.x >= input[0].Length
+            || targetPosition.y >= input.Count
+            || targetPosition.x < 0
+            || targetPosition.y < 0)
+        {
+            return true;
+        }
+        else if (input[targetPosition.y][targetPosition.x] == '#' || targetPosition == customBlock)
+        {
+            if (entries is not null)
+            {
+                var entry = (targetPosition.x, targetPosition.y, vector.x, vector.y);
+                if (entries.Contains(entry))
+                {
+                    isLoop = true;
+                    return true;
+                }
+                entries.Add(entry);
+            }
+
+            vector = vector switch
+            {
+                (0, -1) => (1, 0),
+                (1, 0) => (0, 1),
+                (0, 1) => (-1, 0),
+                (-1, 0) => (0, -1),
+                _ => (0, 0)
+            };
+        }
+        else
+        {
+            position = targetPosition;
+        }
+        return false;
     }
 }
