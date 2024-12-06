@@ -537,39 +537,18 @@ public static class Solutions
             if (position != (0, 0))
                 break;
         }
-        
-        HashSet<(int x, int y)> customBlocks = new HashSet<(int x, int y)>();
-        for (int y = 0; y < input.Count; y++)
-        {
-            for (int x = 0; x < input[y].Length; x++)
-            {
-                HashSet<(int x, int y, int vX, int vY)> entries = new HashSet<(int x, int y, int vX, int vY)>();
-                bool isLoop = false;
-                bool outOfBounds = false;
-                var tempPosition = (position.x, position.y);
-                var tempVector = (vector.x, vector.y);
-                while (!outOfBounds)
-                {
-                    outOfBounds = Traverse_6(input, ref tempPosition, ref tempVector, (x, y), entries, out isLoop);
-                }
-                if (isLoop)
-                {
-                    customBlocks.Add((x, y));
-                }
-            }
-        }        
 
-        /*
+        var startPosition = (position.x, position.y);
         HashSet<(int x, int y)> customBlocks = new HashSet<(int x, int y)>();
         int i = 0;
         bool outOfBounds = false;
         while (!outOfBounds)
         {
-            (int x, int y) tempPosition = (position.x, position.y);
-            (int x, int y) tempVector = (vector.x, vector.y);
+            (int x, int y) tempPosition = (startPosition.x, startPosition.y);
+            (int x, int y) tempVector = (0, -1);
             HashSet<(int x, int y, int vX, int vY)> entries = new HashSet<(int x, int y, int vX, int vY)>();
             bool isComplete = false;
-            var customBlock = (tempPosition.x + tempVector.x, tempPosition.y + tempVector.y);
+            var customBlock = (position.x + vector.x, position.y + vector.y);
             while (!isComplete)
             {
                 isComplete = Traverse_6(input, ref tempPosition, ref tempVector, customBlock, entries, out var isLoop);
@@ -577,8 +556,7 @@ public static class Solutions
             }
 
             outOfBounds = Traverse_6(input, ref position, ref vector, (-1, -1), null, out _);
-        }
-        */
+        }        
 
         return customBlocks.Count;
     }
