@@ -600,4 +600,35 @@ public static class Solutions
         }
         return false;
     }
+
+    public static ulong Solution_7_0(List<string> input)
+    {
+        ulong result = 0;
+
+        foreach (var line in input)
+        {
+            var arr = line.Split(' ');
+            ulong expected = ulong.Parse(arr[0].Substring(0, arr[0].Length - 1));
+            ulong[] sequence = arr[1..].Select(ulong.Parse).ToArray();
+            if (ProcessTreeNode_7_0(sequence[0], 1, sequence, expected))
+                result += expected;
+        }
+
+        return result;
+    }
+    private static bool ProcessTreeNode_7_0(ulong current, int index, ulong[] numbers, ulong expected)
+    {
+        if (current == expected)
+            return true;
+        if (index >= numbers.Length || current > expected)
+            return false;
+
+        if (ProcessTreeNode_7_0(current + numbers[index], index + 1, numbers, expected))
+            return true;
+
+        if (ProcessTreeNode_7_0(current * numbers[index], index + 1, numbers, expected))
+            return true;
+
+        return false;
+    }
 }
