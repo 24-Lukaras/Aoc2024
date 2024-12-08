@@ -631,4 +631,98 @@ public static class Solutions
 
         return false;
     }
+
+    public static int Solution_8_0(List<string> input)
+    {
+        int maxX = input[0].Length;
+        int maxY = input.Count;
+
+        Dictionary<char, List<(int x, int y)>> antennas = new Dictionary<char, List<(int x, int y)>>() {};
+        HashSet<(int x, int y)> antinodes = new HashSet<(int x, int y)>();
+        for (int y = 0; y < input.Count; y++)
+        {
+            for (int x = 0; x < input[y].Length; x++)
+            {
+                if (input[y][x] != '.')
+                {
+                    if (!antennas.TryGetValue(input[y][x], out var coll))
+                    {
+                        coll = new List<(int x, int y)>();
+                        antennas[input[y][x]] = coll;
+                    }
+                    coll.Add((x, y));
+                }
+            }
+        }
+        foreach (var group in antennas.Values)
+        {
+            for (int i = 0; i < group.Count; i++)
+            {
+                var antennaA = group[i];
+                for (int j = i + 1; j < group.Count; j++)
+                {
+                    var antennaB = group[j];
+
+                    (int x, int y) vector = (antennaA.x - antennaB.x, antennaA.y - antennaB.y);
+
+                    antinodes.Add((antennaA.x + vector.x, antennaA.y + vector.y));
+                    antinodes.Add((antennaB.x - vector.x, antennaB.y - vector.y));
+                }
+            }
+        }
+
+        return antinodes.Where(x => x.x >= 0 && x.y >= 0 && x.x < maxX && x.y < maxY).Count();
+    }
+
+    public static int Solution_8_1(List<string> input)
+    {
+        int maxX = input[0].Length;
+        int maxY = input.Count;
+
+        Dictionary<char, List<(int x, int y)>> antennas = new Dictionary<char, List<(int x, int y)>>() { };
+        HashSet<(int x, int y)> antinodes = new HashSet<(int x, int y)>();
+        for (int y = 0; y < input.Count; y++)
+        {
+            for (int x = 0; x < input[y].Length; x++)
+            {
+                if (input[y][x] != '.')
+                {
+                    if (!antennas.TryGetValue(input[y][x], out var coll))
+                    {
+                        coll = new List<(int x, int y)>();
+                        antennas[input[y][x]] = coll;
+                    }
+                    coll.Add((x, y));
+                }
+            }
+        }
+        foreach (var group in antennas.Values)
+        {
+            for (int i = 0; i < group.Count; i++)
+            {
+                var antennaA = group[i];
+                antinodes.Add(antennaA);
+                for (int j = i + 1; j < group.Count; j++)
+                {
+                    var antennaB = group[j];
+
+                    (int x, int y) vector = (antennaA.x - antennaB.x, antennaA.y - antennaB.y);
+                    (int x, int y) currentPosition = (antennaA.x + vector.x, antennaA.y + vector.y);
+                    while (currentPosition.x >= 0 && currentPosition.y >= 0 && currentPosition.x < maxX && currentPosition.y < maxY)
+                    {
+                        antinodes.Add(currentPosition);
+                        currentPosition = (currentPosition.x + vector.x, currentPosition.y + vector.y);
+                    }
+                    currentPosition = (antennaB.x - vector.x, antennaB.y - vector.y);
+                    while (currentPosition.x >= 0 && currentPosition.y >= 0 && currentPosition.x < maxX && currentPosition.y < maxY)
+                    {
+                        antinodes.Add(currentPosition);
+                        currentPosition = (currentPosition.x - vector.x, currentPosition.y - vector.y);
+                    }
+                }
+            }
+        }
+
+        return antinodes.Count();
+    }
 }
