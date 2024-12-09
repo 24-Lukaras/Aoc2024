@@ -725,4 +725,144 @@ public static class Solutions
 
         return antinodes.Count();
     }
+
+    public static long Solution_9_0(string input)
+    {
+        long result = 0;
+
+        List<(int id, int startIndex, int endIndex)> entries = new List<(int id, int startIndex, int endIndex)>();
+
+        int currentIndex = 0;
+        int currentId = 0;
+        bool isEmpty = false;
+        foreach (char c in input)
+        {
+            int value = c switch
+            {
+                '1' => 1,
+                '2' => 2,
+                '3' => 3,
+                '4' => 4,
+                '5' => 5,
+                '6' => 6,
+                '7' => 7,
+                '8' => 8,
+                '9' => 9,
+                _ => 0
+            };
+            int nextIndex = currentIndex + value;
+            if (!isEmpty)
+            {
+                entries.Add((currentId, currentIndex, nextIndex - 1));
+                currentId++;
+            }
+
+            currentIndex = nextIndex;
+            isEmpty = !isEmpty;
+        }
+        (int id, int startIndex, int endIndex)? currentEntry = null;
+        for (int i = 0; i < entries.Count - 1; i++)
+        {            
+            int space = entries[i + 1].startIndex - (entries[i].endIndex + 1);
+            while (space != 0)
+            {
+                if (currentEntry == null)
+                {
+                    currentEntry = entries[^1];
+                }
+                int spaceRequired = currentEntry.Value.endIndex - currentEntry.Value.startIndex + 1;
+                if (spaceRequired <= space)
+                {
+                    entries.RemoveAt(entries.Count - 1);
+                    entries.Insert(i + 1, (currentEntry.Value.id, entries[i].endIndex + 1, entries[i].endIndex + spaceRequired));
+                    i++;
+                    space = space - spaceRequired;
+                    currentEntry = null;
+                }
+                else
+                {
+                    currentEntry = (currentEntry.Value.id, currentEntry.Value.startIndex, currentEntry.Value.endIndex - space);
+                    entries[^1] = currentEntry.Value;
+                    entries.Insert(i + 1, (currentEntry.Value.id, entries[i].endIndex + 1, entries[i].endIndex + space));
+                    space = 0;
+                }
+            }
+        }
+        foreach (var entry in entries)
+        {
+            for (int i = entry.startIndex; i <= entry.endIndex; i++)
+            {
+                result += entry.id * i;
+            }
+        }
+
+        return result;
+    }
+
+    public static long Solution_9_1(string input)
+    {
+        long result = 0;
+
+        List<(int id, int startIndex, int endIndex)> entries = new List<(int id, int startIndex, int endIndex)>();
+
+        int currentIndex = 0;
+        int currentId = 0;
+        bool isEmpty = false;
+        foreach (char c in input)
+        {
+            int value = c switch
+            {
+                '1' => 1,
+                '2' => 2,
+                '3' => 3,
+                '4' => 4,
+                '5' => 5,
+                '6' => 6,
+                '7' => 7,
+                '8' => 8,
+                '9' => 9,
+                _ => 0
+            };
+            int nextIndex = currentIndex + value;
+            if (!isEmpty)
+            {
+                entries.Add((currentId, currentIndex, nextIndex - 1));
+                currentId++;
+            }
+
+            currentIndex = nextIndex;
+            isEmpty = !isEmpty;
+        }
+        
+        for (int i = entries.Count - 1; i >= 0;)
+        {
+            var entry = entries[i];
+            int spaceRequired = entry.endIndex - entry.startIndex + 1;
+            bool inserted = false;
+            for (int j = 0; j < entries.Count - 1 && j < i; j++)
+            {
+                int space = entries[j + 1].startIndex - (entries[j].endIndex + 1);
+                if (space >= spaceRequired)
+                {
+                    entries.RemoveAt(i);
+                    entries.Insert(j + 1, (entry.id, entries[j].endIndex + 1, entries[j].endIndex + spaceRequired));
+                    inserted = true;
+                    break;
+                }
+            }
+            if (!inserted)
+            {
+                i--;
+            }
+        }
+        foreach (var entry in entries)
+        {
+            for (int i = entry.startIndex; i <= entry.endIndex; i++)
+            {
+                result += entry.id * i;
+            }
+        }
+
+        return result;
+    }
 }
