@@ -556,7 +556,7 @@ public static class Solutions
             }
 
             outOfBounds = Traverse_6(input, ref position, ref vector, (-1, -1), null, out _);
-        }        
+        }
 
         return customBlocks.Count;
     }
@@ -637,7 +637,7 @@ public static class Solutions
         int maxX = input[0].Length;
         int maxY = input.Count;
 
-        Dictionary<char, List<(int x, int y)>> antennas = new Dictionary<char, List<(int x, int y)>>() {};
+        Dictionary<char, List<(int x, int y)>> antennas = new Dictionary<char, List<(int x, int y)>>() { };
         HashSet<(int x, int y)> antinodes = new HashSet<(int x, int y)>();
         for (int y = 0; y < input.Count; y++)
         {
@@ -762,7 +762,7 @@ public static class Solutions
         }
         (int id, int startIndex, int endIndex)? currentEntry = null;
         for (int i = 0; i < entries.Count - 1; i++)
-        {            
+        {
             int space = entries[i + 1].startIndex - (entries[i].endIndex + 1);
             while (space != 0)
             {
@@ -833,7 +833,7 @@ public static class Solutions
             currentIndex = nextIndex;
             isEmpty = !isEmpty;
         }
-        
+
         for (int i = entries.Count - 1; i >= 0;)
         {
             var entry = entries[i];
@@ -865,4 +865,69 @@ public static class Solutions
 
         return result;
     }
+
+    public static int Solution_10(List<string> lines, bool isPartTwo)
+    {
+        var result = 0;
+
+        int currentNumber;
+        List<(int x, int y)> currentTrails = new List<(int x, int y)>();
+        for (int y = 0; y < lines.Count; y++)
+        {
+            var line = lines[y];
+            for (int x = 0; x < line.Length; x++)
+            {
+                var c = line[x];
+                if (c == '0')
+                {
+                    currentNumber = 0;
+                    currentTrails = new List<(int x, int y)>() { (x, y) };
+
+                    while (currentTrails.Any() && currentNumber < 9)
+                    {
+                        List<(int x, int y)> newTrails = new List<(int x, int y)>();
+                        char lookingFor = currentNumber switch
+                        {
+                            0 => '1',
+                            1 => '2',
+                            2 => '3',
+                            3 => '4',
+                            4 => '5',
+                            5 => '6',
+                            6 => '7',
+                            7 => '8',
+                            8 => '9',
+                            _ => 'X',
+                        };
+                        foreach (var trail in currentTrails)
+                        {                            
+                            if (trail.x > 0 && lines[trail.y][trail.x - 1] == lookingFor)
+                            {
+                                newTrails.Add((trail.x - 1, trail.y));
+                            }
+                            if (trail.x < line.Length - 1 && lines[trail.y][trail.x + 1] == lookingFor)
+                            {
+                                newTrails.Add((trail.x + 1, trail.y));
+                            }
+
+                            if (trail.y > 0 && lines[trail.y - 1][trail.x] == lookingFor)
+                            {
+                                newTrails.Add((trail.x, trail.y - 1));
+                            }
+                            if (trail.y < lines.Count - 1 && lines[trail.y + 1][trail.x] == lookingFor)
+                            {
+                                newTrails.Add((trail.x, trail.y + 1));
+                            }
+                        }
+                        currentTrails = newTrails;
+                        currentNumber++;
+                    }
+                    result += isPartTwo ? currentTrails.Count : currentTrails.Distinct().Count();
+                }
+            }
+        }
+
+        return result;
+    }
+
 }
