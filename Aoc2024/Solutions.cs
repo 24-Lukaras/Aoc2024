@@ -930,4 +930,35 @@ public static class Solutions
         return result;
     }
 
+    public static int Solution_11_0(string input)
+    {
+        List<long> stones = input.Split(' ').Select(long.Parse).ToList();
+
+        for (int a = 0; a < 25; a++)
+        {
+            for (int i = 0; i < stones.Count; i++)
+            {
+                long stone = stones[i];
+                var stoneStr = stone.ToString();
+
+                if (stone == 0)
+                {
+                    stones[i] = 1;
+                }
+                else if (stoneStr.Length % 2 == 0)
+                {
+                    stones[i] = long.Parse(stoneStr.Substring(0, stoneStr.Length / 2));
+                    stones.Insert(i + 1, long.Parse(stoneStr.Substring(stoneStr.Length / 2)));
+                    i++;
+                }
+                else
+                {
+                    stones[i] = stone * 2024;
+                }
+            }
+        }
+
+        return stones.Count;
+    }
+
 }
