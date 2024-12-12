@@ -900,7 +900,7 @@ public static class Solutions
                             _ => 'X',
                         };
                         foreach (var trail in currentTrails)
-                        {                            
+                        {
                             if (trail.x > 0 && lines[trail.y][trail.x - 1] == lookingFor)
                             {
                                 newTrails.Add((trail.x - 1, trail.y));
@@ -959,6 +959,86 @@ public static class Solutions
         }
 
         return stones.Count;
+    }
+
+    public static long Solution_12_0(List<string> lines)
+    {
+        long result = 0;
+
+        HashSet<(int x, int y)> visitedPlots = new HashSet<(int x, int y)>();
+        List<List<int>> perimeters = new List<List<int>>();
+        for (int y = 0; y < lines.Count; y++)
+        {
+            for (int x = 0; x < lines[y].Length; x++)
+            {
+                if (!visitedPlots.Contains((x, y)))
+                {
+                    char c = lines[y][x];
+
+                    var perimeter = new List<int>();
+                    TraversePerimeter_12(visitedPlots, lines, perimeter, x, y, c);
+
+                    perimeters.Add(perimeter);
+
+                }
+            }
+        }
+
+        foreach (var perimeter in perimeters)
+        {
+            long area = perimeter.Count;
+            long perimeterSum = perimeter.Sum();
+
+            result += area * perimeterSum;
+        }
+
+        return result;
+    }
+
+    private static void TraversePerimeter_12(HashSet<(int x, int y)> visitedPlots, List<string> lines, List<int> coll, int x, int y, char c)
+    {
+        visitedPlots.Add((x, y));
+        List<(int x, int y)> newPlots = new List<(int x, int y)>();
+        if (x > 0 && lines[y][x - 1] == c)
+            newPlots.Add((x - 1, y));
+        if (x < lines[y].Length - 1 && lines[y][x + 1] == c)
+            newPlots.Add((x + 1, y));
+        if (y > 0 && lines[y - 1][x] == c)
+            newPlots.Add((x, y - 1));
+        if (y < lines.Count - 1 && lines[y + 1][x] == c)
+            newPlots.Add((x, y + 1));
+        coll.Add(4 - newPlots.Count);
+
+        foreach (var newPlot in newPlots)
+        {
+            if (!visitedPlots.Contains((newPlot.x, newPlot.y)))
+            {
+                TraversePerimeter_12(visitedPlots, lines, coll, newPlot.x, newPlot.y, c);
+            }
+        }
+    }
+
+    private static void TraversePerimeter_12(HashSet<(int x, int y)> visitedPlots, List<string> lines, List<(int x, int y, int sides)> coll, int x, int y, char c)
+    {
+        visitedPlots.Add((x, y));
+        List<(int x, int y)> newPlots = new List<(int x, int y)>();
+        if (x > 0 && lines[y][x - 1] == c)
+            newPlots.Add((x - 1, y));
+        if (x < lines[y].Length - 1 && lines[y][x + 1] == c)
+            newPlots.Add((x + 1, y));
+        if (y > 0 && lines[y - 1][x] == c)
+            newPlots.Add((x, y - 1));
+        if (y < lines.Count - 1 && lines[y + 1][x] == c)
+            newPlots.Add((x, y + 1));
+        coll.Add((x, y, 4 - newPlots.Count));
+
+        foreach (var newPlot in newPlots)
+        {
+            if (!visitedPlots.Contains((newPlot.x, newPlot.y)))
+            {
+                TraversePerimeter_12(visitedPlots, lines, coll, newPlot.x, newPlot.y, c);
+            }
+        }
     }
 
 }
