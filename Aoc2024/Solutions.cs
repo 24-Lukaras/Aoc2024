@@ -1041,4 +1041,37 @@ public static class Solutions
         }
     }
 
+    public static long Solution_13(List<string> lines, long offset = 0)
+    {
+        long result = 0;
+
+        Regex regex = new Regex(@"([XY])[+-=](\d+)");
+        for (int i = 0; i < lines.Count; i += 4)
+        {
+            var buttonA_match = regex.Matches(lines[i]);
+            var buttonB_match = regex.Matches(lines[i + 1]);
+            var price_match = regex.Matches(lines[i + 2]);
+
+            (long x, long y) buttonA = (long.Parse(buttonA_match[0].Groups[2].Value), long.Parse(buttonA_match[1].Groups[2].Value));
+            (long x, long y) buttonB = (long.Parse(buttonB_match[0].Groups[2].Value), long.Parse(buttonB_match[1].Groups[2].Value));
+            (long x, long y) prize = (long.Parse(price_match[0].Groups[2].Value) + offset, long.Parse(price_match[1].Groups[2].Value) + offset);
+
+            long x1 = buttonA.x * buttonB.y;
+            long prize1 = prize.x * buttonB.y;
+            long x2 = buttonA.y * -buttonB.x;
+            long prize2 = prize.y * -buttonB.x;
+
+            long aPresses = (prize1 + prize2) / (x1 + x2);
+            long xRemaining = prize.x - (buttonA.x * aPresses);
+            long bPresses = xRemaining / buttonB.x;
+
+            if ((aPresses * buttonA.x + bPresses * buttonB.x, aPresses * buttonA.y + bPresses * buttonB.y) == prize)
+            {
+                result += aPresses * 3 + bPresses;
+            }
+        }
+
+        return result;
+    }
+
 }
