@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Drawing;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -1072,6 +1073,83 @@ public static class Solutions
         }
 
         return result;
+    }
+
+    public static long Solution_14_0(string input, int maxX, int maxY)
+    {
+        var regex = new Regex(@"p=(\d+),(\d+) v=(-*\d+),(-*\d+)");
+        List<(int x, int y, int vX, int vY)> robots = regex.Matches(input).Select(x => (int.Parse(x.Groups[1].Value), int.Parse(x.Groups[2].Value), int.Parse(x.Groups[3].Value), int.Parse(x.Groups[4].Value))).ToList();
+        for (int i = 0; i < 100; i++)
+        {
+            for (int j = 0; j < robots.Count; j++)
+            {
+                int x = robots[j].x + robots[j].vX;
+                int y = robots[j].y + robots[j].vY;
+                if (x < 0)
+                    x = maxX + x;
+                if (x >= maxX)
+                    x = x % maxX;
+                if (y < 0)
+                    y = maxY + y;
+                if (y >= maxY)
+                    y = y % maxY;
+                robots[j] = (x, y, robots[j].vX, robots[j].vY);
+            }
+        }
+        int[] quadrants = new int[4];
+        foreach (var robot in robots)
+        {
+            int index = 0;
+
+            if (robot.x == (maxX / 2) || robot.y == (maxY / 2))
+                continue;
+
+            if (robot.x > maxX / 2)
+                index += 1;
+            if (robot.y > maxY / 2)
+                index += 2;
+
+            quadrants[index]++;            
+        }
+        return quadrants.Aggregate(1L, (result, next) => result *= next);
+    }
+
+    // solution needs to be found manualy
+    public static void Solution_14_1(string input, int maxX, int maxY)
+    {
+        var regex = new Regex(@"p=(\d+),(\d+) v=(-*\d+),(-*\d+)");
+        List<(int x, int y, int vX, int vY)> robots = regex.Matches(input).Select(x => (int.Parse(x.Groups[1].Value), int.Parse(x.Groups[2].Value), int.Parse(x.Groups[3].Value), int.Parse(x.Groups[4].Value))).ToList();
+
+        for (int i = 0; i < 10000; i++)
+        {
+            for (int j = 0; j < robots.Count; j++)
+            {
+                int x = robots[j].x + robots[j].vX;
+                int y = robots[j].y + robots[j].vY;
+                if (x < 0)
+                    x = maxX + x;
+                if (x >= maxX)
+                    x = x % maxX;
+                if (y < 0)
+                    y = maxY + y;
+                if (y >= maxY)
+                    y = y % maxY;
+                robots[j] = (x, y, robots[j].vX, robots[j].vY);
+            }
+
+            var coords = robots.Select(x => (x.x, x.y)).ToHashSet();
+
+
+            Bitmap image = new Bitmap(maxX, maxY);
+            for (int y = 0; y < maxY; y++)
+            {
+                for (int x = 0; x < maxX; x++)
+                {
+                    image.SetPixel(x, y, coords.Contains((x, y)) ? Color.White : Color.Black);
+                }
+            }
+            image.Save(@"C:\Users\Lukin\Documents\temp\aoc2024\14_renders\" + i + ".png");
+        }
     }
 
 }
