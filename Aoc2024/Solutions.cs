@@ -1152,4 +1152,67 @@ public static class Solutions
         }
     }
 
+    public static long Solution_15_0(List<string> lines)
+    {
+        int indexOfEmpty = lines.IndexOf(string.Empty);
+        string instructions = string.Join(string.Empty, lines[indexOfEmpty..]);
+        lines = lines[..indexOfEmpty];
+
+        HashSet<(int x, int y)> stones = new HashSet<(int x, int y)>();
+        HashSet<(int x, int y)> boxes = new HashSet<(int x, int y)>();
+        (int x, int y) currenPosition = (0, 0);
+        for (int y = 0; y < lines.Count; y++)
+        {
+            for (int x = 0; x < lines[y].Length; x++)
+            {
+                char c = lines[y][x];
+                if (c == '#')
+                    stones.Add((x, y));
+                else if (c == 'O')
+                    boxes.Add((x, y));
+                else if (c == '@')
+                    currenPosition = (x, y);                
+            }
+        }
+
+        foreach (var instruction in instructions)
+        {
+            (int x, int y) vector = instruction switch
+            {
+                '^' => (0, -1),
+                '>' => (1, 0),
+                'v' => (0, 1),
+                '<' => (-1, 0),
+                _ => throw new Exception()
+            };
+
+            (int x, int y) targetPosition = (currenPosition.x + vector.x, currenPosition.y + vector.y);
+            (int x, int y) tempPosition = currenPosition;
+            bool isEndOfChain = false;
+            bool doMove = true;
+            while (!isEndOfChain)
+            {
+                tempPosition = (tempPosition.x + vector.x, tempPosition.y + vector.y);
+                if (stones.Contains(tempPosition))
+                {
+                    doMove = false;
+                    isEndOfChain = true;
+                }
+                else if (!boxes.Contains(tempPosition))
+                {
+                    isEndOfChain = true;
+                }
+            }
+            if (doMove)
+            {
+                currenPosition = targetPosition;
+                if (boxes.Remove(targetPosition))
+                {
+                    boxes.Add(tempPosition);
+                }
+            }
+        }
+
+        return boxes.Sum(x => x.y * 100 + x.x);
+    }
 }
