@@ -1215,4 +1215,213 @@ public static class Solutions
 
         return boxes.Sum(x => x.y * 100 + x.x);
     }
+
+    /*
+    public static int Solution_16_0(List<string> lines)
+    {
+        int minScore = int.MaxValue;
+        List<(int score, int x, int y, int vX, int vY, HashSet<(int x, int y)> visitedPositions)> positions = new List<(int score, int x, int y, int vX, int vY, HashSet<(int x, int y)> visitedPositions)>();
+        (int x, int y) end = (0, 0);
+        for (int y = 0; y < lines.Count; y++)
+        {
+            for (int x = 0;  x < lines[y].Length; x++)
+            {
+                if (lines[y][x] == 'S')
+                    positions.Add((0, x, y, 1, 0, new HashSet<(int x, int y)>()));
+                if (lines[y][x] == 'E')
+                    end = (x, y);
+            }
+        }
+
+        while (positions.Any())
+        {
+            if (positions.Count > 20000)
+            {
+                positions = positions.OrderBy(x => x.score).Take(positions.Count / 2).ToList();
+            }
+            List<(int score, int x, int y, int vX, int vY, HashSet<(int x, int y)> visitedPositions)> newPositions = new List<(int score, int x, int y, int vX, int vY, HashSet<(int x, int y)> visitedPositions)>();
+
+            foreach (var position in positions)
+            {
+                if ((position.x, position.y) == end)
+                {
+                    if (position.score < minScore)
+                        minScore = position.score;
+                    continue;
+                }
+
+                List<(int vX, int vY)> availableVectors = new List<(int vX, int vY)>();
+
+                if (lines[position.y][position.x + 1] == '.' || lines[position.y][position.x + 1] == 'E' || lines[position.y][position.x + 1] == 'S')
+                    availableVectors.Add((1, 0));
+                if (lines[position.y][position.x - 1] == '.' || lines[position.y][position.x - 1] == 'E' || lines[position.y][position.x - 1] == 'S')
+                    availableVectors.Add((-1, 0));
+                if (lines[position.y + 1][position.x] == '.' || lines[position.y + 1][position.x] == 'E' || lines[position.y + 1][position.x] == 'S')
+                    availableVectors.Add((0, 1));
+                if (lines[position.y - 1][position.x] == '.' || lines[position.y - 1][position.x] == 'E' || lines[position.y - 1][position.x] == 'S')
+                    availableVectors.Add((0, -1));
+
+                availableVectors = availableVectors.Where(x => x != (-position.vX, -position.vY)).ToList();
+                foreach (var availableVector in availableVectors)
+                {
+                    int score = position.score + 1 + ((availableVector == (position.vX, position.vY) ? 0 : 1) * 1000);
+                    (int x, int y) newPosition = (position.x + availableVector.vX, position.y + availableVector.vY);
+                    if (score > minScore)
+                        continue;
+                    if (position.visitedPositions.Contains(newPosition))
+                        continue;
+
+                    var hashSetCopy = position.visitedPositions.ToHashSet();
+                    if (availableVectors.Count > 1)
+                        hashSetCopy.Add(newPosition);
+
+                    newPositions.Add((score, newPosition.x, newPosition.y, availableVector.vX, availableVector.vY, hashSetCopy));
+                }
+            }
+
+            positions = newPositions;
+        }
+
+        return minScore;
+    }
+    */
+    /*
+    public static string Solution_17_0(List<string> lines)
+    {
+        int registerA = int.Parse(lines[0].Replace("Register A: ", ""));
+        int registerB = int.Parse(lines[1].Replace("Register B: ", ""));
+        int registerC = int.Parse(lines[2].Replace("Register C: ", ""));
+
+        int[] program = lines[4].Replace("Program: ", "").Split(',').Select(int.Parse).ToArray();
+
+        List<int> output = new List<int>();
+        for (int i = 0; i < program.Length; i += 2)
+        {
+            int comboOperand = program[i + 1] switch
+            {
+                0 => 0,
+                1 => 1,
+                2 => 2,
+                3 => 3,
+                4 => registerA,
+                5 => registerB,
+                6 => registerC,
+                _ => 0
+            };
+
+            switch (program[i])
+            {
+                case 0:
+                    registerA = Convert.ToInt32(Math.Floor(Convert.ToDouble(registerA) / Math.Pow(2, comboOperand)));
+                    break;
+
+                case 1:
+                    registerB = registerB ^ program[i + 1];
+                    break;
+
+                case 2:
+                    registerB = comboOperand % 8;
+                    break;
+
+                case 3:
+                    if (registerA != 0)
+                    {
+                        i = program[i + 1] - 2;
+                    }
+                    break;
+
+                case 4:
+                    registerB = registerB ^ registerC;
+                    break;
+
+                case 5:
+                    output.Add(comboOperand % 8);
+                    break;
+
+                case 6:
+                    registerB = Convert.ToInt32(Math.Floor(Convert.ToDouble(registerA) / Math.Pow(2, comboOperand)));
+                    break;
+
+                case 7:
+                    registerC = Convert.ToInt32(Math.Floor(Convert.ToDouble(registerA) / Math.Pow(2, comboOperand)));
+                    break;
+            }
+        }
+
+        return string.Join(",", output);
+    }
+
+    public static int Solution_17_1(List<string> lines)
+    {
+        int registerA = 0;
+        int registerB = 0;
+        int registerC = 0;
+
+        int[] program = lines[4].Replace("Program: ", "").Split(',').Select(int.Parse).ToArray();
+
+        bool firstDivision = true;
+        int currentIndex = program.Length - 1;
+        while (currentIndex > 0)
+        {
+            for (int i = program.Length - 2; i >= 0; i -= 2)
+            {
+                int comboOperand = program[i + 1] switch
+                {
+                    0 => 0,
+                    1 => 1,
+                    2 => 2,
+                    3 => 3,
+                    4 => registerA,
+                    5 => registerB,
+                    6 => registerC,
+                    _ => 0
+                };
+
+                switch (program[i])
+                {
+                    case 0:
+                        registerA = Convert.ToInt32(Convert.ToDouble(registerA) * Math.Pow(2, comboOperand));
+                        if (firstDivision)
+                        {
+                            registerA = 1;
+                            firstDivision = false;
+                        }
+                        break;
+
+                    case 1:
+                        registerB = registerB ^ program[i + 1];
+                        break;
+
+                    case 2:
+                        registerB = comboOperand * 8;
+                        break;
+
+                    case 4:
+                        registerB = registerB ^ registerC;
+                        break;
+
+                    case 5:
+                        if (program[i + 1] == 4)
+                            registerA = program[currentIndex];
+                        else if (program[i + 1] == 5)
+                            registerB = program[currentIndex];
+                        else if (program[i + 1] == 6)
+                            registerC = program[currentIndex];
+                        currentIndex--;
+                        break;
+
+                    case 6:
+                        registerB = Convert.ToInt32(Convert.ToDouble(registerA) * Math.Pow(2, comboOperand));
+                        break;
+
+                    case 7:
+                        registerC = Convert.ToInt32(Convert.ToDouble(registerA) * Math.Pow(2, comboOperand));
+                        break;
+                }
+            }
+        }
+
+        return registerA;
+    }
+    */
 }
